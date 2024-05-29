@@ -8,8 +8,12 @@ const errorHandler = (error, req, res, next) => {
         msg: error.message || `Something went wrong, try again later`
     }
 
+    if(customError.msg == "Check constraint 'check_name_email_non_empty' is violated."){
+        customError.statusCode = StatusCodes.BAD_REQUEST
+        customError.msg = 'Must provide a password and a name when creating or updating a user!'
+    }
 
-    return res.status(customError.statusCode).json(customError.msg)
+    return res.status(customError.statusCode).send(customError.msg)
 }
 
 //Export
