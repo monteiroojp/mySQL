@@ -9,11 +9,12 @@ const query = require('../db/querySchema')
 
 //Controllers
 const getAllUsers = async (req, res) => {
-    const {name, email} = req.query
+    const {name, email, sort} = req.query
     const queryParams = []
     const queryConditions = []
     let querySQL = 'SELECT * FROM users'
 
+    //Query parameters
     if(name){
         queryParams.push(name)
         queryConditions.push('name=?')
@@ -28,6 +29,24 @@ const getAllUsers = async (req, res) => {
         querySQL+= ' WHERE ' + queryConditions.join(' AND ')
     }
 
+    //Sort parameters
+    if(sort){
+        const sortList = sort.split(',').map(sortItem => {
+            let [field, order] = sortItem.split(':')
+            order = order.toUpperCase()
+            return `${field} ${order}`         
+        }).join(', ')
+        querySQL += ` ORDER BY ${sortList}`
+    }
+    
+
+    const limit = Number(req.query.limit) || 10
+    const page = Number(req.query.pages) || 1
+    const offset = (page -1) * limit
+    queryParams.push(offset, limit)
+    querySQL += ` LIMIT ?, ?`
+
+    console.log(querySQL, queryParams)
     const user = await query(querySQL, queryParams)
     
     if(user.length == 0){
