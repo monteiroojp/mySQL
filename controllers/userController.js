@@ -20,21 +20,21 @@ const getAllUsers = async (req, res) => {
     }
     
     if(email){
-        queryParams.push(name)
+        queryParams.push(email)
         queryConditions.push('email=?')
     }
 
     if(queryConditions.length > 0){
-        querySQL+= queryConditions.join(' AND ')
+        querySQL+= ' WHERE ' + queryConditions.join(' AND ')
     }
 
-    const [rows] = await query(querySQL, queryParams)
+    const user = await query(querySQL, queryParams)
     
     if(user.length == 0){
         throw new NotFound('There is no user registred')
     }
 
-    res.status(StatusCodes.OK).json({users: rows})
+    res.status(StatusCodes.OK).json({users: user})
 }
 
 const getUser = async (req, res) => {
